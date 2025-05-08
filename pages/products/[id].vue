@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 grid grid-rows-2 md:grid-cols-2">
+  <div class="w-100 grid md:grid-cols-2">
     <div class="mt-[100px] flex items-start justify-center p-6">
       <img
         class="md:max-w-[500px]"
@@ -7,7 +7,7 @@
         alt="product-image"
       />
     </div>
-    <div class="bg-white md:relative md:h-[1230px] md:bg-[#fcf9f7]">
+    <div class="bg-white md:relative md:h-[900px] md:bg-[#fcf9f7]">
       <div
         class="flex flex-col p-4 md:absolute md:bottom-20 md:left-20 md:max-w-[345px] md:gap-4"
       >
@@ -18,7 +18,7 @@
             Hydration 50ml
           </div>
           <span
-            class="flex justify-center text-[20px] font-semibold text-stone-500 md:pt-[150px]"
+            class="flex justify-end text-[20px] font-semibold text-stone-500 md:pt-[150px]"
           >
             39€
           </span>

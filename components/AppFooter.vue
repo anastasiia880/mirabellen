@@ -8,7 +8,7 @@
     <nuxt-link class="px-4 text-stone-400 hover:text-stone-500" to="/policy">
       Privacy policy
     </nuxt-link>
-    <span class="px-4 text-stone-400"> © 2024 All rights reserved. </span>
+    <span class="px-4 text-stone-400"> © 2025 All rights reserved. </span>
   </div>
 </template>
 

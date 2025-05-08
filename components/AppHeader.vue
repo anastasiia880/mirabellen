@@ -17,7 +17,9 @@
     </nuxt-link>
 
     <button>
-      <img src="/icons/cart.svg" alt="cart-icon" />
+      <nuxt-link to="/checkout">
+        <img class="hover:opacity-50" src="/icons/cart.svg" alt="cart-icon" />
+      </nuxt-link>
     </button>
   </div>
 </template>
