@@ -1,5 +1,3 @@
-import type { Config } from 'tailwindcss'
-
 export default {
   content: [],
   theme: {
@@ -11,4 +9,4 @@ export default {
     },
   },
   plugins: [],
-} satisfies Config
+}

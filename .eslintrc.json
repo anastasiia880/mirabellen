@@ -9,7 +9,8 @@
     "parser": "@typescript-eslint/parser"
   },
   "extends": [
-    "@nuxtjs/eslint-config-typescript",
+    "@nuxt/eslint-config",
+    "eslint:recommended",
     "plugin:prettier/recommended"
   ],
   "plugins": [],
