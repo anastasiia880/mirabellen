@@ -8,14 +8,20 @@
   </div>
   <div class="w-100 flex justify-center">
     <div
-      class="no-scrollbar flex flex-col items-center gap-4 overflow-x-scroll p-6 sm:flex-row"
+      class="no-scrollbar flex flex-col items-center gap-8 overflow-x-scroll p-6 sm:flex-row"
     >
       <div
         class="flex-[0_0_auto] cursor-pointer md:max-w-[400px]"
-        v-for="(item, index) in 8"
+        v-for="item in products"
       >
-        <nuxt-link :to="`/products/${index + 1}`">
-          <img src="/images/product-image.jpeg" alt="product-image" />
+        <nuxt-link :to="`/products/${item._id}`">
+          <div class="flex flex-col items-center gap-2">
+            <img src="/images/product-image.jpeg" alt="product-image" />
+            <div class="flex w-full justify-between">
+              <span class="text-sm text-stone-500">{{ item.name }}</span>
+              <span class="text-sm text-stone-500">{{ item.price }} €</span>
+            </div>
+          </div>
         </nuxt-link>
       </div>
     </div>
@@ -28,4 +34,11 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup>
+import { ProductsService } from '~/services/ProductsService'
+const products = ref([])
+
+onMounted(async () => {
+  products.value = await ProductsService.getProducts()
+})
+</script>
