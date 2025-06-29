@@ -11,7 +11,7 @@ export const useAuth = () => {
     isLoading.value = true
     try {
       const userData = await AuthService.getUser()
-      user.value = userData
+      user.value = userData.user || userData
       isAuthenticated.value = true
     } catch (error) {
       user.value = null
@@ -24,7 +24,7 @@ export const useAuth = () => {
   const login = async (credentials) => {
     try {
       const response = await AuthService.login(credentials)
-      // await checkAuth()
+      await checkAuth()
       return response
     } catch (error) {
       throw error
@@ -54,7 +54,7 @@ export const useAuth = () => {
   }
 
   return {
-    user: readonly(user),
+    user,
     isAuthenticated: readonly(isAuthenticated),
     isLoading: readonly(isLoading),
     checkAuth,

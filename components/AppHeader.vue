@@ -15,16 +15,18 @@
           alt="login-icon"
         />
       </nuxt-link>
-      <div
-        v-else
-        class="cursor-pointer text-stone-600 hover:text-stone-400"
-        @click="handleLogout"
-      >
-        <img
-          class="h-[20px] w-[20px] opacity-80 hover:opacity-50"
-          src="/icons/logout.svg"
-          alt="logout-icon"
-        />
+      <div v-else class="flex items-center gap-4">
+        <div
+          class="cursor-pointer text-stone-600 hover:text-stone-400"
+          @click="handleLogout"
+        >
+          <img
+            class="h-[20px] w-[20px] opacity-80 hover:opacity-50"
+            src="/icons/logout.svg"
+            alt="logout-icon"
+          />
+        </div>
+        <span class="text-stone-600">{{ user?.name }}</span>
       </div>
     </div>
     <div v-if="route.path !== '/'">
@@ -48,7 +50,7 @@
 
 <script setup>
 const route = useRoute()
-const { isAuthenticated, logout, checkAuth } = useAuth()
+const { isAuthenticated, logout, checkAuth, user } = useAuth()
 
 onMounted(async () => {
   await checkAuth()
