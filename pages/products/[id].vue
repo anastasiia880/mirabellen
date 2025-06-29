@@ -4,12 +4,64 @@
       <div v-if="loading">
         <div class="h-[775px] w-[500px] animate-pulse bg-stone-100" />
       </div>
-      <img
-        v-else
-        class="max-h-[775px] object-cover md:max-w-[500px]"
-        :src="product?.image"
-        alt="product-image"
-      />
+
+      <div v-else class="relative max-w-[500px]">
+        <div class="relative overflow-hidden">
+          <img
+            class="h-[775px] w-[500px] object-cover transition-transform duration-300 ease-in-out"
+            :src="product?.images[currentImageIndex]"
+            alt="product-image"
+          />
+
+          <div
+            v-if="product?.images?.length > 1"
+            class="absolute inset-0 flex items-center justify-between p-2"
+          >
+            <button
+              @click="previousImage"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-white/70 shadow-lg transition-all hover:bg-white/90 hover:shadow-xl"
+              :disabled="currentImageIndex === 0"
+              :class="{
+                'opacity-50': currentImageIndex === 0,
+              }"
+            >
+              <img src="/icons/back.svg" alt="previous" class="h-5 w-5" />
+            </button>
+
+            <button
+              @click="nextImage"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-white/70 shadow-lg transition-all hover:bg-white/90 hover:shadow-xl"
+              :disabled="currentImageIndex === product.images.length - 1"
+              :class="{
+                'opacity-50': currentImageIndex === product.images.length - 1,
+              }"
+            >
+              <img
+                src="/icons/back.svg"
+                alt="next"
+                class="h-5 w-5 rotate-180"
+              />
+            </button>
+          </div>
+        </div>
+
+        <div
+          v-if="product?.images?.length > 1"
+          class="mt-4 flex justify-center space-x-2"
+        >
+          <button
+            v-for="(image, index) in product.images"
+            :key="index"
+            @click="currentImageIndex = index"
+            class="h-2 w-2 rounded-full transition-all duration-200"
+            :class="
+              index === currentImageIndex
+                ? 'bg-stone-500'
+                : 'bg-stone-300 hover:bg-stone-400'
+            "
+          />
+        </div>
+      </div>
     </div>
     <div class="bg-white md:relative md:h-[900px] md:bg-[#fcf9f7]">
       <div
@@ -53,7 +105,7 @@
         <nuxt-link :to="`/products/${item?._id}`">
           <img
             class="h-[200px] w-[200px] object-cover"
-            :src="item?.image"
+            :src="item?.images[0]"
             alt="product-image"
           />
           <div class="pt-2 text-xs font-semibold text-stone-500">
@@ -73,6 +125,7 @@ const { id } = useRoute().params
 const product = ref(null)
 const productSuggestions = ref([])
 const loading = ref(false)
+const currentImageIndex = ref(0)
 
 onMounted(async () => {
   await getProductData()
@@ -104,4 +157,20 @@ const getProductData = async () => {
     loading.value = false
   }
 }
+
+const nextImage = () => {
+  if (currentImageIndex.value < product.value.images.length - 1) {
+    currentImageIndex.value++
+  }
+}
+
+const previousImage = () => {
+  if (currentImageIndex.value > 0) {
+    currentImageIndex.value--
+  }
+}
+
+watch(product, () => {
+  currentImageIndex.value = 0
+})
 </script>

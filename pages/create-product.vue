@@ -119,6 +119,8 @@
         <input
           id="image"
           ref="fileInput"
+          multiple
+          max="5"
           type="file"
           accept="image/*"
           @change="handleImageUpload"

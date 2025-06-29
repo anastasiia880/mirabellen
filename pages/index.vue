@@ -32,7 +32,7 @@
         <nuxt-link :to="`/products/${item._id}`">
           <div class="flex flex-col items-center gap-2">
             <img
-              :src="item?.image"
+              :src="item?.images[0]"
               alt="product-image"
               class="h-[400px] w-[400px] object-cover"
             />
