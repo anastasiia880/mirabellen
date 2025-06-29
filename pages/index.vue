@@ -10,16 +10,35 @@
     <div
       class="no-scrollbar flex flex-col items-center gap-8 overflow-x-scroll p-6 sm:flex-row"
     >
+      <div v-if="loading" class="flex gap-8">
+        <div
+          v-for="item in 4"
+          :key="item"
+          class="flex-[0_0_auto] md:max-w-[400px]"
+        >
+          <div class="flex flex-col items-center gap-2">
+            <div class="h-[400px] w-[400px] animate-pulse bg-stone-100" />
+            <div class="flex w-full justify-between">
+              <div class="h-4 w-24 animate-pulse bg-stone-100"></div>
+              <div class="h-4 w-16 animate-pulse bg-stone-100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div
         class="flex-[0_0_auto] cursor-pointer md:max-w-[400px]"
         v-for="item in products"
       >
         <nuxt-link :to="`/products/${item._id}`">
           <div class="flex flex-col items-center gap-2">
-            <img src="/images/product-image.jpeg" alt="product-image" />
+            <img
+              :src="item?.image"
+              alt="product-image"
+              class="h-[400px] w-[400px] object-cover"
+            />
             <div class="flex w-full justify-between">
-              <span class="text-sm text-stone-500">{{ item.name }}</span>
-              <span class="text-sm text-stone-500">{{ item.price }} €</span>
+              <span class="text-sm text-stone-500">{{ item?.name }}</span>
+              <span class="text-sm text-stone-500">{{ item?.price }} €</span>
             </div>
           </div>
         </nuxt-link>
@@ -37,8 +56,17 @@
 <script setup>
 import { ProductsService } from '~/services/ProductsService'
 const products = ref([])
+const loading = ref(false)
 
 onMounted(async () => {
-  products.value = await ProductsService.getProducts()
+  try {
+    loading.value = true
+    const data = await ProductsService.getProducts()
+    products.value = data.filter((item) => item.popular)
+  } catch (error) {
+    console.error('Error:', error)
+  } finally {
+    loading.value = false
+  }
 })
 </script>
