@@ -7,7 +7,7 @@
         Your favorite skincare
       </h2>
       <nuxt-link
-        to="/categories"
+        to="/products"
         class="mt-4 text-base text-stone-500 hover:underline"
       >
         Explore our products

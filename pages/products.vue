@@ -3,7 +3,7 @@
     <div class="container mx-auto px-6 py-8">
       <div class="mb-8">
         <h1 class="font-serif text-[32px] text-stone-600 md:text-[36px]">
-          Product Categories
+          Product Catalog
         </h1>
         <p class="mt-2 text-stone-500">
           Discover our curated collection of skincare products
