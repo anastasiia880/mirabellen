@@ -12,6 +12,43 @@ export const ProductsService = {
     }
   },
 
+  async getProductsByCategory(filters = {}) {
+    try {
+      const config = useRuntimeConfig()
+      if (!config.public.apiBaseUrl) {
+        throw new Error('API base URL is not defined in runtime config')
+      }
+
+      const queryParams = new URLSearchParams()
+
+      if (filters.search) {
+        queryParams.append('search', filters.search)
+      }
+      if (filters.category) {
+        queryParams.append('category', filters.category)
+      }
+      if (filters.sort) {
+        queryParams.append('sort', filters.sort)
+      }
+      if (filters.order) {
+        queryParams.append('order', filters.order)
+      }
+      if (filters.page) {
+        queryParams.append('page', filters.page)
+      }
+      if (filters.limit) {
+        queryParams.append('limit', filters.limit)
+      }
+
+      const url = `${config.public.apiBaseUrl}/api/products/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+      const response = await fetch(url)
+      return response.json()
+    } catch (error) {
+      console.error('Error in getProductsByCategory:', error)
+      return { items: [], total: 0, pages: 0, page: 1 }
+    }
+  },
+
   async getProductById(id) {
     try {
       const config = useRuntimeConfig()
