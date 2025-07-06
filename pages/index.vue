@@ -2,9 +2,17 @@
   <div
     class="w-100 flex h-[400px] items-center justify-center bg-[#fcf9f7] md:h-[80vh]"
   >
-    <h2 class="font-serif text-[36px] text-stone-500 md:text-[40px]">
-      Your favorite skincare
-    </h2>
+    <div class="flex flex-col items-center justify-center">
+      <h2 class="font-serif text-[36px] text-stone-500 md:text-[40px]">
+        Your favorite skincare
+      </h2>
+      <nuxt-link
+        to="/categories"
+        class="mt-4 text-base text-stone-500 hover:underline"
+      >
+        Explore our products
+      </nuxt-link>
+    </div>
   </div>
   <div class="w-100 flex justify-center">
     <div
@@ -62,7 +70,8 @@ onMounted(async () => {
   try {
     loading.value = true
     const data = await ProductsService.getProducts()
-    products.value = data.filter((item) => item.popular)
+    console.log(data)
+    products.value = data.items.filter((item) => item.popular)
   } catch (error) {
     console.error('Error:', error)
   } finally {
