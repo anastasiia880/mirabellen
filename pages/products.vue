@@ -21,7 +21,6 @@
                 type="text"
                 placeholder="Search products by name..."
                 class="w-full rounded-lg border border-stone-200 bg-white px-4 py-3 pr-10 text-stone-700 placeholder-stone-400 focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-                @input="debouncedSearch"
               />
               <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                 <svg
@@ -46,31 +45,31 @@
               <label class="text-sm font-medium text-stone-600"
                 >Category:</label
               >
-              <select
+              <Multiselect
                 v-model="selectedCategory"
-                class="rounded-lg border border-stone-200 bg-white px-3 py-2 text-stone-700 focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-                @change="applyFilters"
-              >
-                <option value="">All Categories</option>
-                <option
-                  v-for="category in categories"
-                  :key="category._id"
-                  :value="category.slug"
-                >
-                  {{ category.name }}
-                </option>
-              </select>
+                :options="[...categories.map((cat) => cat.slug)]"
+                :custom-label="categoryLabel"
+                placeholder="All Categories"
+                class="min-w-[235px]"
+                :show-labels="false"
+              />
             </div>
             <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-stone-600">Sort by:</label>
-              <select
-                v-model="sortOption"
-                class="rounded-lg border border-stone-200 bg-white px-3 py-2 text-stone-700 focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-                @change="applyFilters"
+              <label class="text-nowrap text-sm font-medium text-stone-600"
+                >Sort by:</label
               >
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-              </select>
+              <Multiselect
+                v-model="sortOption"
+                :options="[
+                  { label: 'Name (A-Z)', value: 'name-asc' },
+                  { label: 'Name (Z-A)', value: 'name-desc' },
+                ]"
+                label="label"
+                track-by="value"
+                placeholder="Select sort"
+                class="min-w-[235px]"
+                :show-labels="false"
+              />
             </div>
           </div>
         </div>
@@ -167,6 +166,80 @@
           </nuxt-link>
         </div>
       </div>
+      <div
+        v-if="totalPages > 1 || products.length > 0"
+        class="mt-12 flex flex-col items-center gap-6 rounded-lg bg-[#fcf9f7] p-6 md:flex-row md:justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-medium text-stone-600">Show:</label>
+          <Multiselect
+            v-model="itemsPerPage"
+            :options="[
+              { label: '5 items', value: '5' },
+              { label: '10 items', value: '10' },
+              { label: '20 items', value: '20' },
+              { label: '30 items', value: '30' },
+            ]"
+            label="label"
+            track-by="value"
+            placeholder="Select sort"
+            class="min-w-[235px]"
+            :show-labels="false"
+          />
+          <span class="text-nowrap text-sm text-stone-500">per page</span>
+        </div>
+
+        <div v-if="totalPages > 1" class="flex items-center gap-4">
+          <button
+            @click="currentPage--"
+            :disabled="currentPage === 1"
+            class="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+          >
+            <img src="/icons/back.svg" alt="Previous" class="h-5 w-5" />
+          </button>
+
+          <div class="flex items-center gap-2">
+            <template
+              v-for="page in getVisiblePages(totalPages, currentPage)"
+              :key="page"
+            >
+              <button
+                v-if="page !== '...'"
+                @click="currentPage = page"
+                :class="[
+                  'flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-medium transition-colors',
+                  currentPage === page
+                    ? 'border-stone-600 bg-stone-600 text-white'
+                    : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50',
+                ]"
+              >
+                {{ page }}
+              </button>
+              <span
+                v-else
+                class="flex h-10 w-10 items-center justify-center text-stone-400"
+              >
+                ...
+              </span>
+            </template>
+          </div>
+
+          <button
+            @click="currentPage++"
+            :disabled="currentPage === totalPages"
+            class="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+          >
+            <img src="/icons/back.svg" alt="Next" class="h-5 w-5 rotate-180" />
+          </button>
+        </div>
+
+        <div class="text-sm text-stone-500">
+          Showing {{ (currentPage - 1) * Number(itemsPerPage.value) + 1 }}-{{
+            Math.min(currentPage * Number(itemsPerPage.value), totalItems)
+          }}
+          of {{ totalItems }} results
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -174,13 +247,21 @@
 <script setup>
 import { ProductsService } from '~/services/ProductsService'
 import { CategoriesService } from '~/services/CategoriesService'
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.css'
+import { refDebounced } from '@vueuse/core'
+import { getVisiblePages } from '~/utils'
 
 const products = ref([])
 const categories = ref([])
 const loading = ref(false)
 const searchQuery = ref('')
 const selectedCategory = ref('')
-const sortOption = ref('name-asc')
+const sortOption = ref({ label: 'Name (A-Z)', value: 'name-asc' })
+const currentPage = ref(1)
+const totalPages = ref(1)
+const itemsPerPage = ref({ label: '5 items', value: '5' })
+const totalItems = ref(0)
 
 onMounted(async () => {
   await loadCategories()
@@ -194,17 +275,28 @@ const hasActiveFilters = computed(() => {
 const loadProducts = async () => {
   try {
     loading.value = true
-    const [sort, order] = sortOption.value.split('-')
+
+    const sortValue =
+      typeof sortOption.value === 'object' && sortOption.value !== null
+        ? sortOption.value.value
+        : sortOption.value
+
+    const [sort, order] = sortValue.split('-')
 
     const filters = {
       search: searchQuery.value,
       category: selectedCategory.value,
       sort,
       order,
+      page: currentPage.value,
+      limit: itemsPerPage.value.value,
     }
 
     const response = await ProductsService.getProductsByCategory(filters)
     products.value = response.items || []
+    currentPage.value = response.page || 1
+    totalPages.value = response.pages || 1
+    totalItems.value = response.total || 0
   } catch (error) {
     console.error('Error loading products:', error)
     products.value = []
@@ -223,13 +315,10 @@ const loadCategories = async () => {
   }
 }
 
-const applyFilters = () => {
-  loadProducts()
+const applyFilters = async () => {
+  currentPage.value = 1
+  await loadProducts()
 }
-
-const debouncedSearch = debounce(() => {
-  applyFilters()
-}, 500)
 
 const clearSearch = () => {
   searchQuery.value = ''
@@ -244,7 +333,7 @@ const clearCategory = () => {
 const clearAllFilters = () => {
   searchQuery.value = ''
   selectedCategory.value = ''
-  sortOption.value = 'name-asc'
+  sortOption.value = { label: 'Name (A-Z)', value: 'name-asc' }
   applyFilters()
 }
 
@@ -253,15 +342,36 @@ const getCategoryName = (categorySlug) => {
   return category ? category.name : 'Unknown'
 }
 
-function debounce(func, wait) {
-  let timeout
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout)
-      func(...args)
-    }
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
+const categoryLabel = (slug) => {
+  if (!slug) return 'All Categories'
+  const match = categories.value.find((category) => category.slug === slug)
+  return match?.name || slug
 }
+
+watch(
+  sortOption,
+  () => {
+    applyFilters()
+  },
+  { deep: true },
+)
+
+watch(selectedCategory, () => {
+  applyFilters()
+})
+
+watch(currentPage, () => {
+  loadProducts()
+})
+
+const debouncedSearchQuery = refDebounced(searchQuery, 500)
+
+watch(debouncedSearchQuery, () => {
+  applyFilters()
+})
+
+watch(itemsPerPage, () => {
+  currentPage.value = 1
+  loadProducts()
+})
 </script>
