@@ -13,7 +13,8 @@
     "@nuxt/eslint-config": "^1.4.1",
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/tailwindcss": "^6.10.4",
-    "eslint": "^8.56.0",
+    "@vueuse/nuxt": "^10.0.0",
+    "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.2",
     "nuxt": "^3.9.0",
@@ -23,6 +24,8 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
-    "sass": "^1.75.0"
+    "@vueuse/core": "^10.0.0",
+    "sass": "^1.75.0",
+    "vue-multiselect": "^3.0.0-beta.3"
   }
 }
