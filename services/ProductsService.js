@@ -39,6 +39,9 @@ export const ProductsService = {
       if (filters.limit) {
         queryParams.append('limit', filters.limit)
       }
+      if (filters.tags && filters.tags.length > 0) {
+        queryParams.append('tags', filters.tags.join(','))
+      }
 
       const url = `${config.public.apiBaseUrl}/api/products/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
       const response = await fetch(url)
@@ -87,6 +90,21 @@ export const ProductsService = {
       return response.json()
     } catch (error) {
       console.error('Error in addProduct:', error)
+    }
+  },
+
+  async getAvailableTags() {
+    try {
+      const config = useRuntimeConfig()
+      if (!config.public.apiBaseUrl) {
+        throw new Error('API base URL is not defined in runtime config')
+      }
+      const response = await fetch(
+        `${config.public.apiBaseUrl}/api/products/tags`,
+      )
+      return response.json()
+    } catch (error) {
+      console.error('Error in getAvailableTags:', error)
     }
   },
 }

@@ -70,7 +70,7 @@ onMounted(async () => {
   try {
     loading.value = true
     const data = await ProductsService.getProducts()
-    console.log(data)
+
     products.value = data.items.filter((item) => item.popular)
   } catch (error) {
     console.error('Error:', error)
