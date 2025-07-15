@@ -54,6 +54,19 @@
                 :show-labels="false"
               />
             </div>
+
+            <div class="flex items-center gap-2">
+              <label class="text-nowrap text-sm font-medium text-stone-600"
+                >Tags:</label
+              >
+              <Multiselect
+                v-model="selectedTags"
+                :options="availableTags"
+                placeholder="All Tags"
+                multiple
+              />
+            </div>
+
             <div class="flex items-center gap-2">
               <label class="text-nowrap text-sm font-medium text-stone-600"
                 >Sort by:</label
@@ -262,9 +275,12 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 const itemsPerPage = ref({ label: '5 items', value: '5' })
 const totalItems = ref(0)
+const selectedTags = ref([])
+const availableTags = ref([])
 
 onMounted(async () => {
   await loadCategories()
+  await loadTags()
   await loadProducts()
 })
 
@@ -282,6 +298,7 @@ const loadProducts = async () => {
         : sortOption.value
 
     const [sort, order] = sortValue.split('-')
+    const tags = selectedTags.value.length ? [...selectedTags.value] : []
 
     const filters = {
       search: searchQuery.value,
@@ -290,6 +307,7 @@ const loadProducts = async () => {
       order,
       page: currentPage.value,
       limit: itemsPerPage.value.value,
+      tags,
     }
 
     const response = await ProductsService.getProductsByCategory(filters)
@@ -311,6 +329,16 @@ const loadCategories = async () => {
     categories.value = data || []
   } catch (error) {
     console.error('Error loading categories:', error)
+    categories.value = []
+  }
+}
+
+const loadTags = async () => {
+  try {
+    const data = await ProductsService.getAvailableTags()
+    availableTags.value = data || []
+  } catch (error) {
+    console.error('Error loading tags:', error)
     categories.value = []
   }
 }
@@ -373,5 +401,9 @@ watch(debouncedSearchQuery, () => {
 watch(itemsPerPage, () => {
   currentPage.value = 1
   loadProducts()
+})
+
+watch(selectedTags, () => {
+  applyFilters()
 })
 </script>
