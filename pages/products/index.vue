@@ -11,16 +11,17 @@
       </div>
 
       <div class="mb-8 rounded-lg bg-[#fcf9f7] p-6">
-        <div
-          class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-        >
-          <div class="flex-1 md:max-w-md">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div class="lg:col-span-5">
+            <label class="mb-2 block text-sm font-medium text-stone-600"
+              >Search Products</label
+            >
             <div class="relative">
               <input
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search products by name..."
-                class="w-full rounded-lg border border-stone-200 bg-white px-4 py-3 pr-10 text-stone-700 placeholder-stone-400 focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                class="max-h-[47px] w-full rounded-lg border border-stone-200 bg-white px-4 py-3 text-sm text-stone-700 placeholder-stone-400 focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
               />
               <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                 <svg
@@ -38,75 +39,171 @@
                 </svg>
               </div>
             </div>
+            <div class="mt-4 flex items-center">
+              <label
+                class="flex items-center gap-2 text-sm font-medium text-stone-600"
+              >
+                <input
+                  v-model="inStockOnly"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500"
+                />
+                In stock only
+              </label>
+            </div>
           </div>
 
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-stone-600"
-                >Category:</label
-              >
-              <Multiselect
-                v-model="selectedCategory"
-                :options="[...categories.map((cat) => cat.slug)]"
-                :custom-label="categoryLabel"
-                placeholder="All Categories"
-                class="min-w-[235px]"
-                :show-labels="false"
-              />
-            </div>
+          <div class="lg:col-span-7">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div>
+                <label class="mb-2 block text-sm font-medium text-stone-600"
+                  >Sort by</label
+                >
+                <Multiselect
+                  v-model="sortOption"
+                  :options="[
+                    { label: 'Name (A-Z)', value: 'name-asc' },
+                    { label: 'Name (Z-A)', value: 'name-desc' },
+                    { label: 'Price (Low to High)', value: 'price-asc' },
+                    { label: 'Price (High to Low)', value: 'price-desc' },
+                  ]"
+                  label="label"
+                  track-by="value"
+                  :placeholder="sortPlaceholder"
+                  class="min-w-full"
+                  :show-labels="false"
+                  :allow-empty="false"
+                />
+              </div>
 
-            <div class="flex items-center gap-2">
-              <label class="text-nowrap text-sm font-medium text-stone-600"
-                >Tags:</label
-              >
-              <Multiselect
-                v-model="selectedTags"
-                :options="availableTags"
-                placeholder="All Tags"
-                multiple
-              />
-            </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-stone-600"
+                  >Category</label
+                >
+                <Multiselect
+                  v-model="selectedCategory"
+                  :options="[...categories.map((cat) => cat.slug)]"
+                  :custom-label="categoryLabel"
+                  :placeholder="categoryPlaceholder"
+                  class="min-w-full"
+                  :show-labels="false"
+                  :allow-empty="false"
+                />
+              </div>
 
-            <div class="flex items-center gap-2">
-              <label class="text-nowrap text-sm font-medium text-stone-600"
-                >Sort by:</label
-              >
-              <Multiselect
-                v-model="sortOption"
-                :options="[
-                  { label: 'Name (A-Z)', value: 'name-asc' },
-                  { label: 'Name (Z-A)', value: 'name-desc' },
-                ]"
-                label="label"
-                track-by="value"
-                placeholder="Select sort"
-                class="min-w-[235px]"
-                :show-labels="false"
-              />
+              <div>
+                <label class="mb-2 block text-sm font-medium text-stone-600"
+                  >Tags</label
+                >
+                <Multiselect
+                  v-model="selectedTags"
+                  :options="availableTags"
+                  :placeholder="tagsPlaceholder"
+                  multiple
+                  class="min-w-full"
+                  :show-labels="false"
+                  :close-on-select="false"
+                  :clear-on-select="false"
+                  :preserve-search="true"
+                  :preselect-first="false"
+                  :max-height="200"
+                  :allow-empty="true"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <div v-if="hasActiveFilters" class="mt-4 flex flex-wrap gap-2">
-          <span class="text-sm text-stone-600">Active filters:</span>
+        <div
+          v-if="hasActiveFilters"
+          class="mt-6 flex flex-wrap items-center gap-3"
+        >
+          <span class="text-sm font-medium text-stone-600"
+            >Active filters:</span
+          >
           <span
             v-if="searchQuery"
-            class="inline-flex items-center gap-1 rounded-full bg-stone-200 px-3 py-1 text-xs text-stone-700"
+            class="inline-flex items-center gap-2 rounded-full bg-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700"
           >
-            Search: "{{ searchQuery }}"
-            <button @click="clearSearch" class="ml-1 hover:text-stone-900">
-              ×
+            <span>Search: "{{ searchQuery }}"</span>
+            <button
+              @click="clearSearch"
+              class="ml-1 rounded-full p-0.5 transition-colors hover:bg-stone-300 hover:text-stone-900"
+              title="Remove search filter"
+            >
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
             </button>
           </span>
           <span
             v-if="selectedCategory"
-            class="inline-flex items-center gap-1 rounded-full bg-stone-200 px-3 py-1 text-xs text-stone-700"
+            class="inline-flex items-center gap-2 rounded-full bg-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700"
           >
-            Category: {{ getCategoryName(selectedCategory) }}
-            <button @click="clearCategory" class="ml-1 hover:text-stone-900">
-              ×
+            <span>Category: {{ getCategoryName(selectedCategory) }}</span>
+            <button
+              @click="clearCategory"
+              class="ml-1 rounded-full p-0.5 transition-colors hover:bg-stone-300 hover:text-stone-900"
+              title="Remove category filter"
+            >
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
             </button>
           </span>
+          <span
+            v-if="selectedTags.length > 0"
+            class="inline-flex items-center gap-2 rounded-full bg-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700"
+          >
+            <span>Tags: {{ selectedTags.join(', ') }}</span>
+            <button
+              @click="selectedTags = []"
+              class="ml-1 rounded-full p-0.5 transition-colors hover:bg-stone-300 hover:text-stone-900"
+              title="Remove tags filter"
+            >
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </span>
+          <span
+            v-if="inStockOnly"
+            class="inline-flex items-center gap-2 rounded-full bg-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700"
+          >
+            <span>In Stock: Yes</span>
+            <button
+              @click="inStockOnly = false"
+              class="ml-1 rounded-full p-0.5 transition-colors hover:bg-stone-300 hover:text-stone-900"
+              title="Remove in stock filter"
+            >
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </span>
+          <button
+            v-if="hasActiveFilters"
+            @click="clearAllFilters"
+            class="text-xs text-stone-500 underline transition-colors hover:text-stone-700"
+          >
+            Clear all filters
+          </button>
         </div>
       </div>
 
@@ -195,9 +292,10 @@
             ]"
             label="label"
             track-by="value"
-            placeholder="Select sort"
+            :placeholder="itemsPerPagePlaceholder"
             class="min-w-[235px]"
             :show-labels="false"
+            :allow-empty="false"
           />
           <span class="text-nowrap text-sm text-stone-500">per page</span>
         </div>
@@ -277,6 +375,7 @@ const itemsPerPage = ref({ label: '5 items', value: '5' })
 const totalItems = ref(0)
 const selectedTags = ref([])
 const availableTags = ref([])
+const inStockOnly = ref(false)
 
 onMounted(async () => {
   await loadCategories()
@@ -285,7 +384,28 @@ onMounted(async () => {
 })
 
 const hasActiveFilters = computed(() => {
-  return searchQuery.value || selectedCategory.value
+  return (
+    searchQuery.value ||
+    selectedCategory.value ||
+    selectedTags.value.length > 0 ||
+    inStockOnly.value
+  )
+})
+
+const tagsPlaceholder = computed(() => {
+  return selectedTags.value.length ? '' : 'All Tags'
+})
+
+const categoryPlaceholder = computed(() => {
+  return selectedCategory.value ? '' : 'All Categories'
+})
+
+const sortPlaceholder = computed(() => {
+  return sortOption.value ? '' : 'Select sort'
+})
+
+const itemsPerPagePlaceholder = computed(() => {
+  return itemsPerPage.value ? '' : 'Select items per page'
 })
 
 const loadProducts = async () => {
@@ -308,6 +428,7 @@ const loadProducts = async () => {
       page: currentPage.value,
       limit: itemsPerPage.value.value,
       tags,
+      in_stock: inStockOnly.value,
     }
 
     const response = await ProductsService.getProductsByCategory(filters)
@@ -361,7 +482,9 @@ const clearCategory = () => {
 const clearAllFilters = () => {
   searchQuery.value = ''
   selectedCategory.value = ''
+  selectedTags.value = []
   sortOption.value = { label: 'Name (A-Z)', value: 'name-asc' }
+  inStockOnly.value = false
   applyFilters()
 }
 
@@ -376,34 +499,212 @@ const categoryLabel = (slug) => {
   return match?.name || slug
 }
 
+const debouncedSearchQuery = refDebounced(searchQuery, 500)
+
 watch(
-  sortOption,
+  [
+    sortOption,
+    selectedCategory,
+    debouncedSearchQuery,
+    selectedTags,
+    inStockOnly,
+  ],
   () => {
     applyFilters()
   },
   { deep: true },
 )
 
-watch(selectedCategory, () => {
-  applyFilters()
-})
-
 watch(currentPage, () => {
   loadProducts()
-})
-
-const debouncedSearchQuery = refDebounced(searchQuery, 500)
-
-watch(debouncedSearchQuery, () => {
-  applyFilters()
 })
 
 watch(itemsPerPage, () => {
   currentPage.value = 1
   loadProducts()
 })
-
-watch(selectedTags, () => {
-  applyFilters()
-})
 </script>
+
+<style scoped>
+:deep(.multiselect) {
+  min-height: 44px;
+  border-radius: 0.5rem;
+  border: 1px solid #e7e5e4;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+:deep(.multiselect:hover) {
+  border-color: #a8a29e;
+}
+
+:deep(.multiselect.is-active) {
+  border-color: #78716c;
+  box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.1);
+}
+
+:deep(.multiselect__tags) {
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+:deep(.multiselect__placeholder) {
+  color: #a8a29e;
+  font-size: 0.8rem;
+  margin-bottom: 0;
+  padding-top: 0;
+}
+
+:deep(.multiselect__single) {
+  color: #44403c;
+  font-size: 0.8rem;
+  margin-bottom: 0;
+  padding-top: 0;
+  background: transparent;
+}
+
+:deep(.multiselect__input) {
+  color: #44403c;
+  font-size: 0.8rem;
+  background: transparent;
+  margin: 0;
+  padding: 0;
+  min-width: 60px;
+}
+
+:deep(.multiselect__input::placeholder) {
+  color: #a8a29e;
+}
+
+:deep(.multiselect__content-wrapper) {
+  border: 1px solid #e7e5e4;
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+:deep(.multiselect__option) {
+  padding: 0.75rem 1rem;
+  color: #44403c;
+  font-size: 0.8rem;
+  transition: background-color 0.2s ease;
+}
+
+:deep(.multiselect__option--highlight) {
+  background-color: #f5f5f4;
+  color: #44403c;
+}
+
+:deep(.multiselect__option--selected) {
+  background-color: #78716c;
+  color: white;
+}
+
+:deep(.multiselect__option--selected.multiselect__option--highlight) {
+  background-color: #57534e;
+  color: white;
+}
+
+:deep(.multiselect__tag) {
+  background-color: #e7e5e4;
+  color: #44403c;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  margin-right: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  word-break: break-word;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d6d3d1;
+}
+
+:deep(.multiselect__tag-icon) {
+  color: #78716c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  transition: all 0.2s ease;
+}
+
+:deep(.multiselect__tag-icon:hover) {
+  background-color: #d6d3d1;
+  color: #44403c;
+}
+
+:deep(.multiselect__tag-icon:after) {
+  color: inherit;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+:deep(.multiselect__select::before) {
+  top: 75%;
+}
+
+:deep(.multiselect__spinner) {
+  border-color: #78716c transparent transparent;
+}
+
+:deep(.multiselect__input:focus) {
+  outline: none;
+  box-shadow: none;
+}
+
+:deep(.multiselect__caret) {
+  border-color: #78716c transparent transparent;
+  border-width: 5px 5px 0;
+  transition: transform 0.2s ease;
+}
+
+:deep(.multiselect.is-active .multiselect__caret) {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 640px) {
+  :deep(.multiselect) {
+    min-height: 48px;
+  }
+
+  :deep(.multiselect__tags) {
+    padding: 0.8rem 1rem;
+    min-height: 48px;
+    gap: 0.6rem;
+  }
+
+  :deep(.multiselect__tag) {
+    font-size: 0.8rem;
+    margin-right: 0.4rem;
+  }
+}
+
+:deep(.multiselect[data-multiple='true']) {
+  min-height: auto;
+}
+
+:deep(.multiselect[data-multiple='true'] .multiselect__tags) {
+  padding: 1rem 1.25rem;
+  min-height: auto;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+:deep(.multiselect[data-multiple='true'] .multiselect__input) {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+</style>
