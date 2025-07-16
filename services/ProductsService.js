@@ -42,6 +42,9 @@ export const ProductsService = {
       if (filters.tags && filters.tags.length > 0) {
         queryParams.append('tags', filters.tags.join(','))
       }
+      if (filters.in_stock) {
+        queryParams.append('in_stock', filters.in_stock)
+      }
 
       const url = `${config.public.apiBaseUrl}/api/products/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
       const response = await fetch(url)

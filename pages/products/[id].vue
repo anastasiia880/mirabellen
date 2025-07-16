@@ -137,7 +137,9 @@ const getProductSuggestions = async () => {
     loading.value = true
     const data = await ProductsService.getProducts()
     productSuggestions.value = data.items.filter(
-      (item) => item.category.name === product.value.category.name,
+      (item) =>
+        item.category.name === product.value.category.name &&
+        item._id !== product.value._id,
     )
   } catch (error) {
     console.error('Error:', error)
