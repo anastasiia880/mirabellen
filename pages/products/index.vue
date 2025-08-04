@@ -263,7 +263,7 @@
                   {{ product.name }}
                 </h3>
                 <span class="text-sm font-medium text-stone-600">
-                  {{ product.price }} €
+                  {{ product.modifications[0].price }} €
                 </span>
               </div>
               <p

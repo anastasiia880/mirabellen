@@ -46,7 +46,9 @@
             />
             <div class="flex w-full justify-between">
               <span class="text-sm text-stone-500">{{ item?.name }}</span>
-              <span class="text-sm text-stone-500">{{ item?.price }} €</span>
+              <span class="text-sm text-stone-500"
+                >{{ item?.modifications[0].price }} €</span
+              >
             </div>
           </div>
         </nuxt-link>
