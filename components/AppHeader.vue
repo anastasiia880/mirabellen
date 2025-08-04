@@ -40,9 +40,15 @@
         mirabellen cosmetics.
       </h1>
     </nuxt-link>
-    <button>
+    <button class="relative">
       <nuxt-link to="/checkout">
         <img class="hover:opacity-50" src="/icons/cart.svg" alt="cart-icon" />
+        <div
+          v-if="isAuthenticated && itemCount > 0"
+          class="absolute -right-1 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs font-bold text-white"
+        >
+          {{ itemCount > 99 ? '99+' : itemCount }}
+        </div>
       </nuxt-link>
     </button>
   </div>
@@ -51,9 +57,13 @@
 <script setup>
 const route = useRoute()
 const { isAuthenticated, logout, checkAuth, user } = useAuth()
+const { itemCount, loadCart } = useCart()
 
 onMounted(async () => {
   await checkAuth()
+  if (isAuthenticated.value) {
+    await loadCart()
+  }
 })
 
 const handleLogout = async () => {
