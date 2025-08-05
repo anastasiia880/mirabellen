@@ -7,7 +7,7 @@
 
       <div
         v-else-if="!cartItems || cartItems.length === 0"
-        class="py-12 text-center"
+        class="py-[100px] text-center"
       >
         <div class="mb-8 text-xl text-stone-500">Your cart is empty</div>
         <nuxt-link
@@ -123,15 +123,22 @@
             <div class="flex flex-col gap-4 pt-4 md:flex-row">
               <button
                 @click="clearCartItems"
-                :disabled="isLoading"
+                :disabled="isLoading || isProcessingPayment"
                 class="flex-1 border border-stone-300 py-3 text-stone-600 transition-colors hover:bg-stone-50 disabled:opacity-50"
               >
                 Clear Cart
               </button>
               <button
-                class="flex-1 bg-black py-3 text-white transition-colors hover:bg-stone-800"
+                @click="handlePayment"
+                :disabled="
+                  isLoading ||
+                  isProcessingPayment ||
+                  !cartItems ||
+                  cartItems.length === 0
+                "
+                class="flex-1 bg-black py-3 text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
               >
-                Pay
+                {{ isProcessingPayment ? 'Processing...' : 'Pay' }}
               </button>
             </div>
           </div>
@@ -151,6 +158,8 @@
 </template>
 
 <script setup>
+import { PaymentService } from '~/services/PaymentService.js'
+
 const {
   cartItems,
   itemCount,
@@ -168,6 +177,7 @@ definePageMeta({
 
 const updatingItems = ref(new Set())
 const isError = ref(false)
+const isProcessingPayment = ref(false)
 
 onMounted(async () => {
   await loadCart()
@@ -221,5 +231,36 @@ const clearCartItems = async () => {
 
 const goToProduct = (productId) => {
   navigateTo(`/products/${productId}`)
+}
+
+const handlePayment = async () => {
+  if (!cartItems.value || cartItems.value.length === 0) {
+    return
+  }
+
+  isProcessingPayment.value = true
+
+  try {
+    const cart_items = cartItems.value.map((item) => ({
+      name: item.modification
+        ? `${item.product.name} (${item.modification})`
+        : item.product.name,
+      price: item.price,
+      quantity: item.quantity,
+    }))
+
+    const response = await PaymentService.createCheckoutSession(cart_items)
+
+    if (response.url) {
+      window.location.href = response.url
+    } else {
+      throw new Error('No checkout URL received')
+    }
+  } catch (error) {
+    console.error('Payment processing failed:', error)
+    isError.value = true
+  } finally {
+    isProcessingPayment.value = false
+  }
 }
 </script>
